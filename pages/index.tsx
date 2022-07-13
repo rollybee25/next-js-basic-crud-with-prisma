@@ -2,6 +2,11 @@ import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router';
 import { useState } from 'react'
 import { prisma } from "../lib/prisma";
+import { signOut, signIn, useSession, getSession } from "next-auth/react";
+
+
+
+
 
 interface Notes{
   notes: {
@@ -19,6 +24,10 @@ interface FormData {
 
 const Home = ({notes}: Notes) => {
 
+  const {data: session} = useSession();
+
+  console.log(session);
+
   const [form, setForm] = useState<FormData>({title: '', content: '', id: ''})
   const router = useRouter()
 
@@ -28,7 +37,7 @@ const Home = ({notes}: Notes) => {
 
   async function create(data: FormData) {
     try {
-      fetch('http://localhost:3000/api/create', {
+      fetch('http://localhost:3000/api/note/create', {
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json'
@@ -95,10 +104,15 @@ const Home = ({notes}: Notes) => {
     }
   }
 
+  const handleSignOut = async () => {
+    await signOut()
+  }
+
   return (
     <div>
+      { session?<button onClick={handleSignOut} className='w-auto p-1 text-white bg-green-500 rounded' type='submit'>Sign Out</button> :<></> }
       <h1 className='mt-4 text-2xl font-bold text-center'>Notes</h1>
-      {form.title ? 
+      {form.id ? 
       
       <form onSubmit={ e => {
           e.preventDefault()
@@ -180,7 +194,17 @@ const Home = ({notes}: Notes) => {
 export default Home
 
 
-export const getServerSideProps: GetServerSideProps =async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context)
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/api/auth/signin',
+        permanent: false,
+      },
+    }
+  }
+
   const notes = await prisma.note.findMany({
     select: {
       id: true,
@@ -191,7 +215,7 @@ export const getServerSideProps: GetServerSideProps =async () => {
 
   return {
     props: {
-      notes
+      notes,
     }
   }
 }
