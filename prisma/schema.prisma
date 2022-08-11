@@ -24,7 +24,7 @@ model users {
   registeredAt  DateTime   @default(now())
   firstName     String      @db.VarChar(250)
   lastName      String      @db.VarChar(250)
-  email         String      @db.VarChar(250)
+  email         String      @db.VarChar(250)  @unique(map: "users_email_unique_constraint")
   password      String      @db.VarChar(250)
   isActive      String      @default("1") @db.Char(1)
 }

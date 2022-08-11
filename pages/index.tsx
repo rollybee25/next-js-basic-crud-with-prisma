@@ -26,8 +26,6 @@ const Home = ({notes}: Notes) => {
 
   const {data: session} = useSession();
 
-  console.log(session);
-
   const [form, setForm] = useState<FormData>({title: '', content: '', id: ''})
   const router = useRouter()
 
@@ -55,9 +53,6 @@ const Home = ({notes}: Notes) => {
   async function updateNote(data: FormData, id: string) {
     
     try {
-
-      
-
       fetch(`http://localhost:3000/api/note/${id}`, {
         body: JSON.stringify(data),
         headers: {
@@ -96,7 +91,7 @@ const Home = ({notes}: Notes) => {
     }
   }
 
-  const handleUpdate =async (data:FormData) => {
+  const handleUpdate = async (data:FormData) => {
     try {
       updateNote(data, form.id)
     } catch (error) {

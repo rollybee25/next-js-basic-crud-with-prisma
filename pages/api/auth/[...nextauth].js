@@ -1,4 +1,5 @@
 import { prisma } from "../../../lib/prisma";
+import { comparePassword } from "../../../lib/Helper";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -22,7 +23,8 @@ export default NextAuth({
 
                     if (user !== null)
                     {
-                        if(user.password === credentials.password) {
+                        const isMatch = await comparePassword(credentials.password, user.password)
+                        if(isMatch === true) {
                             return {
                                 id: user.userId,
                                 name: user.firstName+ " " + user.lastName,
